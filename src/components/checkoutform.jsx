@@ -1,40 +1,42 @@
-import React, {useState} from "react";
-import { useStripe, useElements, CardElement} from "@stripe/react-stripe-js";
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import React, { useState } from "react";
 
 const CheckoutForm = () => {
-    const stripe = useStripe();
-    const elements = useElements();
-    const [email , setEmail] = useState('');
+  const stripe = useStripe();
+  const elements = useElements();
+  const [email, setEmail] = useState("");
 
-const handleSubmit = async(event) =>{
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type : 'card',
-        card: elements.getElement(CardElement),
-        billing_details : {
-            email: email, 
-        },
+      type: "card",
+      card: elements.getElement(CardElement),
+      billing_details: {
+        email: email,
+      },
     });
-    if (!error) { 
-        const response = await fetch('http://localhost:3000/api/payment', {
-            method: 'POST',
-            headers: 
-            {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ paymentMethodId: paymentMethod.id }),
-        });
-        if(response.ok){
-            console.log('Paiement reussie')
-        }else{
-            console.log('Paiement refusé')
-        }
-    }else {
-        console.log(error)
+    if (!error) {
+      const response = await fetch("http://localhost:3000/api/payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          paymentMethodId: paymentMethod.id,
+        }),
+      });
+      if (response.ok) {
+        console.log("Paiement reussie");
+      } else {
+        console.log("Paiement refusé");
+      }
+    } else {
+      console.log(error);
     }
-};
-return (
+  };
+  return (
     <form onSubmit={handleSubmit}>
       <input
         type="email"
@@ -49,6 +51,6 @@ return (
       </button>
     </form>
   );
-}
+};
 
 export default CheckoutForm;
